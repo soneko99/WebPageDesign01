@@ -1,0 +1,111 @@
+@charset "UTF-8";
+/*共通部分*/
+html{
+    font-size: 100%;
+}
+body{
+    font-family: "Yu Gothic Medium","游ゴシック Medium",YuGothic,sans-serif,"ヒラギノ角ゴ Pro W3";
+    line-height: 1.7;
+    color: #432;
+    
+}
+a{
+    text-decoration: none;
+}
+img{
+    max-width: 100%;
+}
+/*Header-------------------------------*/
+.logo{
+    width: 100px;
+    
+}
+.main-nav{
+    display: flex;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    margin-top: 60px;
+    list-style: none;
+    
+}
+.main-nav li{
+    margin-left: 36px;
+}
+.main-nav a{
+    color:#432;
+    margin-left: 36px;
+}
+.main-nav a:hover{
+    color:#b4b4c4
+}
+.page-header{
+    display: flex;
+    justify-content: space-between;
+}
+.wrapper{
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 4%;
+}
+/*HOME-------------------------------*/
+.home-content{
+    text-align: center;
+    margin-top: 10%;
+}
+.home-content p{
+    font-size: 1.125rem;
+    margin: 10px 0 42px;
+}
+
+/*　見出し */ 
+.page-title{
+    font-size: 2rem;
+    font-family: 'Philosopher',serif;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+/*　ボタン */
+.button{
+    font-size: 1.175rem;
+    background: #545474;
+    color: #fff;
+    border-radius: 5px;
+    padding: 15px 25px;
+}
+.button:hover{
+    background: #73738C;
+    opacity: 0.8;
+}
+/* 背景 */
+#home {
+    /*background-image:url("../images/@TopImage.jpg");相対パスじゃないと表示されない*/
+    min-height: 100vh;
+    }
+#home .page-title {
+    text-transform: none;
+}
+.big-bg {
+    background-size:cover;
+    background-position: 60% 40%;
+}
+/*News----------------------*/
+#news{
+    background-image: url("../images/NEWS1.jpg");
+    height: 270px;
+    margin-bottom: 40px;
+}
+#news .page-title{
+    text-align: center;
+    color:white;
+    
+}
+/*footer----------------------*/
+footer{
+    background: #432;
+    text-align: center;
+    padding:  26px 0;
+}
+footer p{
+    color: #fff;
+    font-size: 0.875rem;
+}
