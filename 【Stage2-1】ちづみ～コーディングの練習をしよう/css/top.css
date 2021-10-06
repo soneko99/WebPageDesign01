@@ -31,6 +31,7 @@ header a {
 }
 header h3 {
   margin: 8px 0;
+  width: auto;
 }
 .main-nav {
   display: flex;
