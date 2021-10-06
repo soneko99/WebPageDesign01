@@ -153,6 +153,12 @@ footer p {
     margin: 0;
     margin-bottom: 50px;
   }
+    .about-coment h3 {
+    text-align: center;
+  }
+  .about-coment p {
+    text-align: center;
+  }
   .about-contain img {
     margin: auto;
     width: 100%;
