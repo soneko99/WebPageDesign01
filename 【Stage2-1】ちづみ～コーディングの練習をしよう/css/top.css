@@ -108,6 +108,7 @@ header h3 {
   font-size: 18px;
 }
 .about-contain img {
+  padding-top: 32px;
   width: 50%;
   height: 70%;
 }
