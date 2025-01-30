@@ -1,5 +1,6 @@
-### 2025年に本をみて作ったオリジナルウェブページ 👋
--  HTML,CSSの内容中心
+### 2025 年に本をみて作ったオリジナルウェブページ 👋
+
+- HTML,CSS の内容中心
 
 <!--
 **soneko99/soneko99** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
