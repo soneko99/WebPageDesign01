@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AIツール一覧</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            text-align: center;
+            font-size: 0.95em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        .description table {
+            margin: 0 auto;
+            font-size: 0.9em;
+            border-collapse: collapse;
+            color: #f0f0f0;
+        }
+
+        .description th,
+        .description td {
+            padding: 6px 12px;
+            border: 1px solid #444;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .controls input {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 4px;
+            border: none;
+            font-size: 1em;
+            width: 300px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #2c2c2c;
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #3a3a3a;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        tr:hover {
+            background-color: #383838;
+        }
+
+        a {
+            color: #4ea1ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        select {
+            margin-top: 4px;
+            background-color: #2c2c2c;
+            color: #f0f0f0;
+            border: 1px solid #666;
+            border-radius: 4px;
+            font-size: 0.9em;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AIツール一覧</h1>
+    <div class="description">
+        <strong>✅ 絵文字アイコン化案（料金）</strong><br>
+        <table>
+            <tr>
+                <th>区分</th>
+                <th>表示アイコン</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>無料</td>
+                <td>🟢 無料</td>
+                <td>誰でも無料で使える</td>
+            </tr>
+            <tr>
+                <td>有料</td>
+                <td>🔵 有料</td>
+                <td>有料プラン中心 or 月額課金</td>
+            </tr>
+            <tr>
+                <td>一部無料</td>
+                <td>🟡 一部無料</td>
+                <td>トライアル／フリーミアムなど</td>
+            </tr>
+            <tr>
+                <td>Pro限定</td>
+                <td>🟣 Pro限定</td>
+                <td>有料サブスク内の機能（例：DALL·E 3）</td>
+            </tr>
+        </table>
+    </div>
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="検索（ツール名・用途など）" />
+    </div>
+    <table id="aiTable">
+        <thead>
+            <tr>
+                <th data-col="0">ジャンル<br><select id="colFilter0"></select></th>
+                <th data-col="1">用途<br><select id="colFilter1"></select></th>
+                <th data-col="2">ツール名<br><select id="colFilter2"></select></th>
+                <th data-col="3">料金<br><select id="colFilter3"></select></th>
+                <th data-col="4">NSFW<br><select id="colFilter4"></select></th>
+                <th data-col="5">備考<br><select id="colFilter5"></select></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const table = document.getElementById('aiTable');
+        const tbody = table.querySelector('tbody');
+        const columnFilters = [...Array(6)].map((_, i) => document.getElementById(`colFilter${i}`));
+        let originalData = [];
+
+        fetch('/data/ai-tools.json')
+            .then(response => response.json())
+            .then(data => {
+                originalData = data;
+                renderTable(data);
+                populateColumnFilters();
+                addEventListeners();
+            });
+
+        function renderTable(data) {
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item['ジャンル'] || ''}</td>
+                    <td>${item['用途'] || ''}</td>
+                    <td><a href="${item['URL'] || '#'}" target="_blank">${item['ツール名'] || ''}</a></td>
+                    <td>${item['料金'] || ''}</td>
+                    <td>${item['NSFW対応'] || ''}</td>
+                    <td>${item['備考'] || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function populateColumnFilters() {
+            columnFilters.forEach((select, colIndex) => {
+                const uniqueVals = new Set(originalData.map(item => Object.values(item)[colIndex]));
+                select.innerHTML = '<option value="">全て</option>' + [...uniqueVals].sort().map(val => `<option value="${val}">${val}</option>`).join('');
+            });
+        }
+
+        function filterTable() {
+            const search = searchInput.value.toLowerCase();
+            const colValues = columnFilters.map(select => select.value);
+            const filtered = originalData.filter(item => {
+                const searchableValues = [
+                    item['ジャンル'],
+                    item['用途'],
+                    item['ツール名'],
+                    item['料金'],
+                    item['NSFW対応']
+                ].map(val => (val || '').toLowerCase());
+
+                const matchesSearch = searchableValues.some(val => val.includes(search));
+                const matchesColumns = colValues.every((val, idx) => val === '' || Object.values(item)[idx] === val);
+                return matchesSearch && matchesColumns;
+            });
+            renderTable(filtered);
+        }
+
+        function addEventListeners() {
+            searchInput.addEventListener('input', filterTable);
+            columnFilters.forEach(select => select.addEventListener('change', filterTable));
+            table.querySelectorAll('th').forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    originalData.sort((a, b) => {
+                        const valA = Object.values(a)[index];
+                        const valB = Object.values(b)[index];
+                        return valA.localeCompare(valB, 'ja');
+                    });
+                    filterTable();
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
