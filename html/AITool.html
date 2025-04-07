@@ -154,7 +154,7 @@
         const columnFilters = [...Array(6)].map((_, i) => document.getElementById(`colFilter${i}`));
         let originalData = [];
 
-        fetch('./data/ai-tools.json')
+        fetch('/data/ai-tools.json')
             .then(response => response.json())
             .then(data => {
                 originalData = data;
