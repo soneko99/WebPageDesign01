@@ -15,9 +15,27 @@
             /* 深いブルー */
             --gold: #c9a246;
             --card-bg: #ffffff;
-            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow: rgba(0, 0, 0, 0.5);
             --grad-light: #f3f4f6;
             --grad-dark: #e5e7eb;
+        }
+
+        /* ダークモード用変数 */
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --text: #ffffff;
+            --accent: #ffffff;
+            --gold: #ffd700;
+            --card-bg: #1a1a1a;
+            --card-shadow: rgba(255, 255, 255, 0.5);
+            --grad-light: #2d3748;
+            --grad-dark: #1a202c;
+            --nav-bg: #2a2a2a;
+            /* ナビゲーションカテゴリの背景色を変更 */
+            --nav-border: #444;
+            --genre-bg: #2a2a2a;
+            --genre-shadow: rgba(255, 255, 255, 0.5);
+            --course-card-p: #ffffff;
         }
 
         * {
@@ -98,7 +116,6 @@
 
         .course-card p {
             font-size: 0.95rem;
-            color: #444;
             margin-bottom: 1rem;
         }
 
@@ -145,11 +162,6 @@
         }
 
         @media (max-width: 768px) {
-            /* .courses {
-                flex-direction: column;
-                align-items: center;
-            } */
-
             header h1 {
                 font-size: 1.5rem;
             }
@@ -165,12 +177,12 @@
             justify-content: center;
             gap: 1rem;
             padding: 2rem 1rem;
-            background: #fff;
+            background: var(--nav-bg);
         }
 
         .nav-category {
-            background: #fdfdfd;
-            border: 1px solid #ccc;
+            background: var(--nav-bg);
+            border: 1px solid var(--nav-border);
             border-radius: 12px;
             padding: 1rem;
             width: 300px;
@@ -266,7 +278,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 12px;
             border: 1px solid #ccc;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
@@ -300,7 +312,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 12px;
             border: 1px solid #ccc;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
@@ -318,7 +330,7 @@
 
         .card-desc p {
             font-size: 0.95rem;
-            color: var(--text);
+            color: var (--text);
             margin-bottom: 1rem;
         }
 
@@ -339,11 +351,11 @@
         }
 
         .genre-block {
-            background: #f7f7f7;
+            background: var(--genre-bg);
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 3rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px var(--genre-shadow);
             overflow-x: visible;
             /* 横スクロールを無効化 */
             height: auto;
@@ -401,6 +413,7 @@
             <h1>おすすめUdemy講座一覧</h1>
         </a>
         <p>未来を切り拓くための学びを、あなたに。</p>
+        <button id="theme-toggle" aria-label="テーマ切り替え">🌙</button>
     </header>
 
 
@@ -431,7 +444,6 @@
                 <li><a href="#WordPressでサイト制作">WordPressでサイト制作</a></li>
             </ul>
         </div>
-
     </nav>
     <section id="AI・次世代">
         <h2>AI・次世代</h2>
@@ -441,7 +453,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>みんなのAI講座 ゼロからPythonで学ぶ人工知能と機械学習 【2025年最新版】</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 023245.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>みんなのAI講座 ゼロからPythonで学ぶ人工知能と機械学習 【2025年最新版】</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>プログラミング言語Pythonを基礎から学び、機械学習の基礎を身につけ、コードを一から実装できるようになる。</p>
@@ -453,10 +466,11 @@
                 </div>
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>AIエージェント入門【初心者向け】 -自律的に調査判断実行するAIを学ぼう！-</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 023759.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>AIエージェント入門【初心者向け】 -自律的に調査判断実行するAIを学ぼう！-</h3> -->
                     </div>
                     <div class="card-desc">
-                        <p>自律的に調査・判断・実行するAIエージェントの基礎を学び、その活用方法を理解できる。</p>
+                        <p>【初心者向け】 自律的に調査・判断・実行するAIエージェントの基礎を学び、その活用方法を理解できる。</p>
                     </div>
                     <div class="card-link">
                         <a class="detail-link" href="https://www.udemy.com/course/ai-agent/" target="_blank">▶ 詳細を見る</a>
@@ -465,7 +479,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>オープンソースAIモデル活用入門－画像・音声・言語にわたる多様なモデルの使い方から、文書QA・ファインチューニングまで</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 030719.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>オープンソースAIモデル活用入門－画像・音声・言語にわたる多様なモデルの使い方から、文書QA・ファインチューニングまで</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>画像・音声・言語にわたる多様なオープンソースAIモデルの活用方法を学び、文書QAやファインチューニングの技術を習得できる。</p>
@@ -478,7 +493,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>AIパーフェクトマスター講座 -Google Colaboratoryで隅々まで学ぶ-</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 031028.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>AIパーフェクトマスター講座 -Google Colaboratoryで隅々まで学ぶ-</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>画像識別や画像生成、RNNや強化学習などの人工知能技術を幅広く学び、Google Colaboratoryを活用して実践的なスキルを習得できる。</p>
@@ -491,7 +507,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>OpenAI API 完全マスターガイド ChatGPTによるチャットボット開発や画像生成、音声認識を基礎から学ぶ</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 031325.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>OpenAI API 完全マスターガイド ChatGPTによるチャットボット開発や画像生成、音声認識を基礎から学ぶ</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>OpenAI APIを活用して、ChatGPTによるチャットボット開発や画像生成、音声認識の基礎から応用までを学ぶことができる。</p>
@@ -504,7 +521,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>初心者のためのDify入門 ハンズオン講座</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 031640.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>初心者のためのDify入門 ハンズオン講座</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Difyの基本的な使い方をハンズオン形式で学び、生成AIビジネス活用のスキルを習得できる。</p>
@@ -516,7 +534,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>【AIチャットアプリ開発】Next.js & Firebase & ChatGPT APIを使ったWebアプリ開発講座</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 031757.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>【AIチャットアプリ開発】Next.js & Firebase & ChatGPT APIを使ったWebアプリ開発講座</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Next.js、Firebase、ChatGPT APIを組み合わせて、AIチャットアプリを開発するスキルを習得できる。</p>
@@ -533,7 +552,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>【2024】Stable Diffusionをマスターしよう！【LoRA】画像生成AI</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 032422.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>【2024】Stable Diffusionをマスターしよう！【LoRA】画像生成AI</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Stable DiffusionとLoRAを活用し、高品質な画像生成技術を習得できる。</p>
@@ -546,7 +566,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>【Midjourney】生成AIによる画像生成を学ぼう！</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 033005.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>【Midjourney】生成AIによる画像生成を学ぼう！</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Midjourneyを使用して、テキストから高品質な画像を生成する方法を学ぶことができる。</p>
@@ -559,7 +580,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>【革命】AIイラストで似た顔や特定のポーズを再現できる！ControlNet入門【Stable Diffusion】</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 033256.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>【革命】AIイラストで似た顔や特定のポーズを再現できる！ControlNet入門【Stable Diffusion】</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Stable Diffusionの拡張機能であるControlNetを活用し、特定のポーズや似た顔のイラストを生成する技術を習得できる。</p>
@@ -573,7 +595,8 @@
 
                 <div class="course-card">
                     <div class="card-title">
-                        <h3>【初めてのStable Diffusion】最新４通りの始め方を解説！ローカル生成AI GOColab【SDXL】</h3>
+                        <img src="../images/スクリーンショット 2025-04-13 033648.png" alt="AI・生成AIツール活用" />
+                        <!-- <h3>【初めてのStable Diffusion】最新４通りの始め方を解説！ローカル生成AI GOColab【SDXL】</h3> -->
                     </div>
                     <div class="card-desc">
                         <p>Stable Diffusionの最新の始め方を4通り学び、ローカル環境やGoogle Colabでの運用方法を習得できる。</p>
@@ -1375,6 +1398,17 @@
         </div>
         <p>&copy; 2025 Evolvance All Rights Reserved.</p>
     </footer>
+
+    <script>
+        // ダークモード切り替えスクリプト
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+    </script>
 
 </body>
 
