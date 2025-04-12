@@ -22,6 +22,11 @@
             padding: 2rem 1rem;
         }
 
+        .none-deco-a-tag {
+            text-decoration: none;
+            color: inherit;
+        }
+
         h1 {
             text-align: center;
             color: #ffffff;
@@ -64,7 +69,7 @@
         }
 
         table {
-            width: 100%;
+            width: auto;
             border-collapse: collapse;
             background-color: #2c2c2c;
         }
@@ -104,11 +109,53 @@
             font-size: 0.9em;
             width: 100%;
         }
+
+        .accordion-header {
+            background-color: #3a3a3a;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 10px;
+            text-align: left;
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: #4a4a4a;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 10px;
+            background-color: #2c2c2c;
+            overflow: hidden;
+        }
+
+        .accordion-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .accordion-content th,
+        .accordion-content td {
+            padding: 8px;
+            border: 1px solid #444;
+        }
+
+        .accordion-content th {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
     </style>
 </head>
 
 <body>
-    <h1>AIツール一覧</h1>
+    <a class="none-deco-a-tag" href="https://soneko99.github.io/WebPageDesign01/html/intoro.html">
+        <h1>AIツール一覧</h1>
+    </a>
     <div class="description">
         <strong>✅ 絵文字アイコン化案（料金）</strong><br>
         <table>
@@ -142,53 +189,130 @@
     <div class="controls">
         <input type="text" id="searchInput" placeholder="検索（ツール名・用途など）" />
     </div>
-    <table id="aiTable">
-        <thead>
-            <tr>
-                <th data-col="0">ジャンル<br><select id="colFilter0"></select></th>
-                <th data-col="1">用途<br><select id="colFilter1"></select></th>
-                <th data-col="2">ツール名<br><select id="colFilter2"></select></th>
-                <th data-col="3">料金<br><select id="colFilter3"></select></th>
-                <th data-col="4">NSFW<br><select id="colFilter4"></select></th>
-                <th data-col="5">備考<br><select id="colFilter5"></select></th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div id="accordion">
+        <!-- アコーディオンセクションがここに動的に生成されます -->
+    </div>
     <script>
         const searchInput = document.getElementById('searchInput');
-        const table = document.getElementById('aiTable');
-        const tbody = table.querySelector('tbody');
+        const accordion = document.getElementById('accordion');
         const columnFilters = [...Array(6)].map((_, i) => document.getElementById(`colFilter${i}`));
         let originalData = [];
+        let sortState = { key: '', isAscending: true }; // ソート状態を保持
 
         fetch('../data/ai-tools.json')
             .then(response => response.json())
             .then(data => {
                 originalData = data;
-                renderTable(data);
+                renderAccordion(data);
                 populateColumnFilters();
-                addEventListeners();
             });
 
-        function renderTable(data) {
-            tbody.innerHTML = '';
-            data.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item['ジャンル'] || ''}</td>
-                    <td>${item['用途'] || ''}</td>
-                    <td><a href="${item['URL'] || '#'}" target="_blank">${item['ツール名'] || ''}</a></td>
-                    <td>${item['料金'] || ''}</td>
-                    <td>${item['NSFW対応'] || ''}</td>
-                    <td>${item['備考'] || ''}</td>
+        function renderAccordion(data) {
+            accordion.innerHTML = '';
+            const groupedData = groupBy(data, 'ジャンル');
+            Object.keys(groupedData).forEach(genre => {
+                const section = document.createElement('div');
+                section.innerHTML = `
+                    <button class="accordion-header">${genre}</button>
+                    <div class="accordion-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th data-key="用途">用途</th>
+                                    <th data-key="ツール名">ツール名</th>
+                                    <th data-key="料金">料金</th>
+                                    <th data-key="NSFW対応">NSFW</th>
+                                    <th data-key="備考">備考</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${groupedData[genre].map(item => `
+                                    <tr>
+                                        <td>${item['用途'] || ''}</td>
+                                        <td><a href="${item['URL'] || '#'}" target="_blank">${item['ツール名'] || ''}</a></td>
+                                        <td>${item['料金'] || ''}</td>
+                                        <td>${item['NSFW対応'] || ''}</td>
+                                        <td>${item['備考'] || ''}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                accordion.appendChild(section);
+            });
+            addAccordionListeners();
+            addSortListeners(); // ソートリスナーを追加
+        }
+
+        function groupBy(array, key) {
+            return array.reduce((result, currentValue) => {
+                (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
+                return result;
+            }, {});
+        }
+
+        function addAccordionListeners() {
+            const headers = document.querySelectorAll('.accordion-header');
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const isVisible = content.style.display === 'block';
+                    document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none'); // 他を閉じる
+                    content.style.display = isVisible ? 'none' : 'block'; // 現在の状態を切り替え
+                });
+            });
+        }
+
+        function addSortListeners() {
+            const headers = document.querySelectorAll('.accordion-content th');
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const key = header.dataset.key;
+                    const isSameKey = sortState.key === key;
+                    sortState = { key, isAscending: isSameKey ? !sortState.isAscending : true };
+
+                    // アコーディオンの開閉状態を保存
+                    const accordionState = Array.from(document.querySelectorAll('.accordion-header')).map(header => {
+                        const content = header.nextElementSibling;
+                        return content.style.display === 'block';
+                    });
+
+                    const groupedData = groupBy(originalData, 'ジャンル');
+                    const sortedData = Object.keys(groupedData).reduce((result, genre) => {
+                        const sortedGroup = [...groupedData[genre]].sort((a, b) => {
+                            const valA = (a[key] || '').toString().toLowerCase();
+                            const valB = (b[key] || '').toString().toLowerCase();
+                            if (valA < valB) return sortState.isAscending ? -1 : 1;
+                            if (valA > valB) return sortState.isAscending ? 1 : -1;
+                            return 0;
+                        });
+                        result[genre] = sortedGroup;
+                        return result;
+                    }, {});
+
+                    document.querySelectorAll('.accordion-content th').forEach(th => th.classList.remove('ascending', 'descending'));
+                    header.classList.add(sortState.isAscending ? 'ascending' : 'descending');
+
+                    renderAccordion(Object.values(sortedData).flat());
+
+                    // アコーディオンの開閉状態を復元
+                    restoreAccordionState(accordionState);
+                });
+            });
+        }
+
+        function restoreAccordionState(state) {
+            const headers = document.querySelectorAll('.accordion-header');
+            headers.forEach((header, index) => {
+                const content = header.nextElementSibling;
+                content.style.display = state[index] ? 'block' : 'none';
             });
         }
 
         function populateColumnFilters() {
             columnFilters.forEach((select, colIndex) => {
+                if (!select) return; // nullチェックを追加
                 const uniqueVals = new Set(originalData.map(item => Object.values(item)[colIndex]));
                 select.innerHTML = '<option value="">全て</option>' + [...uniqueVals].sort().map(val => `<option value="${val}">${val}</option>`).join('');
             });
@@ -210,22 +334,7 @@
                 const matchesColumns = colValues.every((val, idx) => val === '' || Object.values(item)[idx] === val);
                 return matchesSearch && matchesColumns;
             });
-            renderTable(filtered);
-        }
-
-        function addEventListeners() {
-            searchInput.addEventListener('input', filterTable);
-            columnFilters.forEach(select => select.addEventListener('change', filterTable));
-            table.querySelectorAll('th').forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    originalData.sort((a, b) => {
-                        const valA = Object.values(a)[index];
-                        const valB = Object.values(b)[index];
-                        return valA.localeCompare(valB, 'ja');
-                    });
-                    filterTable();
-                });
-            });
+            renderAccordion(filtered);
         }
     </script>
 </body>
