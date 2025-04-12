@@ -54,20 +54,6 @@
             border: 1px solid #444;
         }
 
-        .controls {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .controls input {
-            margin: 5px;
-            padding: 8px;
-            border-radius: 4px;
-            border: none;
-            font-size: 1em;
-            width: 300px;
-        }
-
         table {
             width: auto;
             border-collapse: collapse;
@@ -116,11 +102,13 @@
             cursor: pointer;
             padding: 10px;
             text-align: left;
-            border: none;
-            outline: none;
             width: 100%;
             font-size: 1rem;
             transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:focus {
+            outline: 2px solid #4ea1ff;
         }
 
         .accordion-header:hover {
@@ -186,18 +174,12 @@
             </tr>
         </table>
     </div>
-    <!-- <div class="controls">
-        <input type="text" id="searchInput" placeholder="検索（ツール名・用途など）" />
-    </div> -->
     <div id="accordion">
         <!-- アコーディオンセクションがここに動的に生成されます -->
     </div>
     <script>
         const searchInput = document.getElementById('searchInput');
         const accordion = document.getElementById('accordion');
-        const filter用途 = document.getElementById('filter用途');
-        const filter料金 = document.getElementById('filter料金');
-        const filterNSFW = document.getElementById('filterNSFW');
         let originalData = [];
         let sortState = { key: '', isAscending: true }; // ソート状態を保持
         let filteredData = []; // フィルタリングされたデータを保持
@@ -207,7 +189,6 @@
             .then(data => {
                 originalData = data;
                 renderAccordion(data);
-                populateColumnFilters();
                 addEventListeners();
             });
 
@@ -358,15 +339,6 @@
                     filterElement.value = filterStates[filterId];
                 }
             });
-        }
-
-        function populateColumnFilters() {
-            const groupedData = groupBy(originalData, 'ジャンル'); // ジャンルごとにデータをグループ化
-            const allData = Object.values(groupedData).flat(); // 全てのデータをフラット化
-
-            populateFilterOptions(filter用途, '用途', allData);
-            populateFilterOptions(filter料金, '料金', allData);
-            populateFilterOptions(filterNSFW, 'NSFW対応', allData);
         }
 
         function populateFilterOptions(selectElement, key, data) {
