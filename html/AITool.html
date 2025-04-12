@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../favicon/IMG_3967.png" type="image/x-icon">
     <title>AIツール一覧</title>
     <style>
         body {
@@ -195,9 +195,12 @@
     <script>
         const searchInput = document.getElementById('searchInput');
         const accordion = document.getElementById('accordion');
-        const columnFilters = [...Array(6)].map((_, i) => document.getElementById(`colFilter${i}`));
+        const filter用途 = document.getElementById('filter用途');
+        const filter料金 = document.getElementById('filter料金');
+        const filterNSFW = document.getElementById('filterNSFW');
         let originalData = [];
         let sortState = { key: '', isAscending: true }; // ソート状態を保持
+        let filteredData = []; // フィルタリングされたデータを保持
 
         fetch('../data/ai-tools.json')
             .then(response => response.json())
@@ -205,6 +208,7 @@
                 originalData = data;
                 renderAccordion(data);
                 populateColumnFilters();
+                addEventListeners();
             });
 
         function renderAccordion(data) {
@@ -218,10 +222,22 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th data-key="用途">用途</th>
+                                    <th data-key="用途">用途
+                                        <select id="filter用途-${genre}" onchange="filterTable('${genre}')">
+                                            <option value="">全て</option>
+                                        </select>
+                                    </th>
                                     <th data-key="ツール名">ツール名</th>
-                                    <th data-key="料金">料金</th>
-                                    <th data-key="NSFW対応">NSFW</th>
+                                    <th data-key="料金">料金
+                                        <select id="filter料金-${genre}" onchange="filterTable('${genre}')">
+                                            <option value="">全て</option>
+                                        </select>
+                                    </th>
+                                    <th data-key="NSFW対応">NSFW
+                                        <select id="filterNSFW-${genre}" onchange="filterTable('${genre}')">
+                                            <option value="">全て</option>
+                                        </select>
+                                    </th>
                                     <th data-key="備考">備考</th>
                                 </tr>
                             </thead>
@@ -240,6 +256,11 @@
                     </div>
                 `;
                 accordion.appendChild(section);
+
+                // 各ジャンルごとにフィルターオプションを生成
+                populateFilterOptions(document.getElementById(`filter用途-${genre}`), '用途', groupedData[genre]);
+                populateFilterOptions(document.getElementById(`filter料金-${genre}`), '料金', groupedData[genre]);
+                populateFilterOptions(document.getElementById(`filterNSFW-${genre}`), 'NSFW対応', groupedData[genre]);
             });
             addAccordionListeners();
             addSortListeners(); // ソートリスナーを追加
@@ -267,7 +288,10 @@
         function addSortListeners() {
             const headers = document.querySelectorAll('.accordion-content th');
             headers.forEach(header => {
-                header.addEventListener('click', () => {
+                header.addEventListener('click', (event) => {
+                    // 修正: <select>要素がクリックされた場合はソートを実行しない
+                    if (event.target.tagName === 'SELECT') return;
+
                     const key = header.dataset.key;
                     const isSameKey = sortState.key === key;
                     sortState = { key, isAscending: isSameKey ? !sortState.isAscending : true };
@@ -278,7 +302,12 @@
                         return content.style.display === 'block';
                     });
 
-                    const groupedData = groupBy(originalData, 'ジャンル');
+                    // 現在のリストボックスの選択状態を保存
+                    const filterStates = saveFilterStates();
+
+                    // 修正: フィルタリングされたデータを基にソート
+                    const dataToSort = filteredData.length ? filteredData : originalData;
+                    const groupedData = groupBy(dataToSort, 'ジャンル');
                     const sortedData = Object.keys(groupedData).reduce((result, genre) => {
                         const sortedGroup = [...groupedData[genre]].sort((a, b) => {
                             const valA = (a[key] || '').toString().toLowerCase();
@@ -298,6 +327,9 @@
 
                     // アコーディオンの開閉状態を復元
                     restoreAccordionState(accordionState);
+
+                    // リストボックスの選択状態を復元
+                    restoreFilterStates(filterStates);
                 });
             });
         }
@@ -310,31 +342,98 @@
             });
         }
 
-        function populateColumnFilters() {
-            columnFilters.forEach((select, colIndex) => {
-                if (!select) return; // nullチェックを追加
-                const uniqueVals = new Set(originalData.map(item => Object.values(item)[colIndex]));
-                select.innerHTML = '<option value="">全て</option>' + [...uniqueVals].sort().map(val => `<option value="${val}">${val}</option>`).join('');
+        function saveFilterStates() {
+            const filterStates = {};
+            const filterElements = document.querySelectorAll('select[id^="filter"]');
+            filterElements.forEach(filter => {
+                filterStates[filter.id] = filter.value;
+            });
+            return filterStates;
+        }
+
+        function restoreFilterStates(filterStates) {
+            Object.keys(filterStates).forEach(filterId => {
+                const filterElement = document.getElementById(filterId);
+                if (filterElement) {
+                    filterElement.value = filterStates[filterId];
+                }
             });
         }
 
-        function filterTable() {
-            const search = searchInput.value.toLowerCase();
-            const colValues = columnFilters.map(select => select.value);
-            const filtered = originalData.filter(item => {
-                const searchableValues = [
-                    item['ジャンル'],
-                    item['用途'],
-                    item['ツール名'],
-                    item['料金'],
-                    item['NSFW対応']
-                ].map(val => (val || '').toLowerCase());
+        function populateColumnFilters() {
+            const groupedData = groupBy(originalData, 'ジャンル'); // ジャンルごとにデータをグループ化
+            const allData = Object.values(groupedData).flat(); // 全てのデータをフラット化
 
-                const matchesSearch = searchableValues.some(val => val.includes(search));
-                const matchesColumns = colValues.every((val, idx) => val === '' || Object.values(item)[idx] === val);
-                return matchesSearch && matchesColumns;
+            populateFilterOptions(filter用途, '用途', allData);
+            populateFilterOptions(filter料金, '料金', allData);
+            populateFilterOptions(filterNSFW, 'NSFW対応', allData);
+        }
+
+        function populateFilterOptions(selectElement, key, data) {
+            const uniqueVals = [...new Set(data.map(item => item[key] || ''))].sort();
+            selectElement.innerHTML = '<option value="">全て</option>' + uniqueVals.map(val => `<option value="${val}">${val}</option>`).join('');
+        }
+
+        function filterTable() {
+            const groupedData = groupBy(originalData, 'ジャンル');
+            filteredData = []; // フィルタリングされたデータをリセット
+
+            Object.keys(groupedData).forEach(genre => {
+                const filter用途Element = document.getElementById(`filter用途-${genre}`);
+                const filter料金Element = document.getElementById(`filter料金-${genre}`);
+                const filterNSFWElement = document.getElementById(`filterNSFW-${genre}`);
+
+                const selected用途 = filter用途Element.value;
+                const selected料金 = filter料金Element.value;
+                const selectedNSFW = filterNSFWElement.value;
+
+                const filtered = groupedData[genre].filter(item => {
+                    const matches用途 = !selected用途 || item['用途'] === selected用途;
+                    const matches料金 = !selected料金 || item['料金'] === selected料金;
+                    const matchesNSFW = !selectedNSFW || item['NSFW対応'] === selectedNSFW;
+
+                    return matches用途 && matches料金 && matchesNSFW;
+                });
+
+                filteredData = filteredData.concat(filtered); // フィルタリング結果を保持
+
+                // フィルタリング結果を該当ジャンルのテーブルに反映
+                const section = Array.from(document.querySelectorAll('.accordion-header')).find(header => header.textContent === genre);
+                if (section) {
+                    const tbody = section.nextElementSibling.querySelector('tbody');
+                    tbody.innerHTML = filtered.map(item => `
+                        <tr>
+                            <td>${item['用途'] || ''}</td>
+                            <td><a href="${item['URL'] || '#'}" target="_blank">${item['ツール名'] || ''}</a></td>
+                            <td>${item['料金'] || ''}</td>
+                            <td>${item['NSFW対応'] || ''}</td>
+                            <td>${item['備考'] || ''}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // フィルタリング後にリストボックスのオプションを更新
+                updateFilterOptions(genre, filtered);
+
+                // 修正: 選択状態を保持
+                filter用途Element.value = selected用途;
+                filter料金Element.value = selected料金;
+                filterNSFWElement.value = selectedNSFW;
             });
-            renderAccordion(filtered);
+        }
+
+        function updateFilterOptions(genre, filteredData) {
+            const allData = groupBy(originalData, 'ジャンル')[genre];
+            populateFilterOptions(document.getElementById(`filter用途-${genre}`), '用途', filteredData.length ? filteredData : allData);
+            populateFilterOptions(document.getElementById(`filter料金-${genre}`), '料金', filteredData.length ? filteredData : allData);
+            populateFilterOptions(document.getElementById(`filterNSFW-${genre}`), 'NSFW対応', filteredData.length ? filteredData : allData);
+        }
+
+        function addEventListeners() {
+            const filterElements = document.querySelectorAll('select[id^="filter"]');
+            filterElements.forEach(filter => {
+                filter.addEventListener('change', filterTable);
+            });
         }
     </script>
 </body>
